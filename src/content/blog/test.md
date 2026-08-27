@@ -7,7 +7,7 @@ featured_image: https://picsum.photos/id/841/1920/1280.webp
 category: test
 tags:
   - test
-draft: true
+draft: false
 ---
 
 ## Why static, and why it stays that way
