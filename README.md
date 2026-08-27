@@ -1,50 +1,58 @@
 # Field Notes
 
-A static blog for a single author: Astro + TypeScript, Markdown content collections,
+A static blog for a single author. Astro + TypeScript, Markdown content collections,
 Sveltia CMS at `/admin`, Pagefind search, Giscus comments, deployed to GitHub Pages by
 GitHub Actions.
 
-- **Live URL:** https://aumniguest.github.io/blog/
-- **Repository:** `aumniguest/blog` (GitHub Pages **project** site, so everything is
-  served under the `/blog/` base path)
+**Live:** <https://aumniguest.github.io/blog/>
+
+No server, no database, no tracking scripts, no cookie banner, no CSS framework. Three
+runtime dependencies. The only client-side JavaScript is a theme toggle, a copy-link
+button, the search page and the comment widget.
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [docs/setup.md](docs/setup.md) | **Start here.** One-time setup — Pages source, CMS token, Giscus, contact form, author details |
+| [docs/writing.md](docs/writing.md) | Writing and publishing posts, frontmatter reference, drafts, images |
+| [docs/architecture.md](docs/architecture.md) | How the site is built and why the awkward parts are that way |
+| [docs/deployment.md](docs/deployment.md) | CI/CD, required Pages configuration, verifying a deploy, rollback |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Every failure hit while building this, with the fix |
+| [SECURITY.md](SECURITY.md) | Threat model, token hygiene, why deletion is not erasure |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Ground rules for comments |
+| [CLAUDE.md](CLAUDE.md) | Conventions for anyone (or anything) editing this repository |
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
 | `npm install` | Install dependencies |
-| `npm run dev` | Dev server at http://localhost:4321/blog/ — **drafts are visible** |
+| `npm run dev` | Dev server at http://localhost:4321/blog/ — **drafts visible** |
 | `npm run build` | Production build into `dist/`, then Pagefind indexes it (`postbuild`) |
-| `npm run preview` | Serve `dist/` — the only way to test search and `/admin/` as deployed |
+| `npm run preview` | Serve `dist/` — the only faithful test of search, `/admin/` and base paths |
 | `npm run check` | TypeScript + Astro diagnostics |
 
 ### Windows: Smart App Control
 
-If `npm run dev` or `npm run build` fails with *"An Application Control policy has
-blocked this file"*, Windows Smart App Control is refusing Astro's unsigned native
-compiler binary. Install the WASI fallback once per `npm install`:
+If a build fails with *"An Application Control policy has blocked this file"*, Windows
+Smart App Control is refusing Astro's unsigned native compiler binary. Install the WASI
+fallback:
 
 ```bash
 npm install --no-save --force @astrojs/compiler-binding-wasm32-wasi
 ```
 
-`--force` is required because npm refuses a `wasm32` package on an `x64` machine, and
-`--no-save` keeps it out of `package.json` — it is a machine-specific workaround, not a
-project dependency. Re-run it after any `npm install` or `npm ci`. CI on Linux uses the
-native binding and is unaffected.
+Re-run it after every `npm install` or `npm ci`. CI on Linux is unaffected. Details in
+[troubleshooting.md](docs/troubleshooting.md).
 
-## Where to edit things
+## Writing a post
 
-Everything site-wide lives in [`src/consts.ts`](src/consts.ts): title, description,
-author name/bio/email, posts-per-page, social links, the Giscus IDs and the contact
-form endpoint. Nothing else hardcodes them.
+Open [`/admin/`](https://aumniguest.github.io/blog/admin/) → **New Post** → uncheck
+**Draft** → **Save**. That commits to `main`, which builds and deploys.
 
-## Writing posts
-
-Posts are Markdown files in `src/content/blog/`. The filename is the URL slug, so
-`my-post.md` publishes at `/blog/my-post/`. Frontmatter is validated at build time by
-the Zod schema in [`src/content.config.ts`](src/content.config.ts) — a typo fails the
-build instead of shipping broken output.
+Or write the file directly — posts are Markdown in `src/content/blog/`, and the filename
+is the URL slug:
 
 ```yaml
 ---
@@ -59,60 +67,32 @@ draft: false
 ---
 ```
 
-`draft: true` posts render in `npm run dev` and are dropped entirely from production
-builds — no page, no feed entry, no archive listing, no search hit.
+Frontmatter is validated at build time — a typo fails the build instead of shipping
+broken output, and a failed build leaves the previous version live.
 
-## The CMS
-
-Open `/admin/` on the deployed site (or `/admin/index.html` on the dev server — Astro's
-dev server does not serve directory indexes for `public/` files; the built site does).
-
-Three sign-in options appear:
-
-1. **Work with Local Repository** — pick this while developing. It uses the browser's
-   File System Access API to read and write this working copy directly, so saves land
-   as plain file changes you can review with `git diff` before committing. Enabled by
-   `local_backend: true` in `public/admin/config.yml`; needs a Chromium-based browser.
-2. **Sign In Using Access Token** — the production route. Paste a fine-grained GitHub
-   PAT scoped to this repository (see the setup notes). No OAuth backend, no serverless
-   function, no client secret anywhere.
-3. *Sign In with GitHub* — needs an OAuth backend that this project deliberately does
-   not have. Ignore it.
-
-Saving a post commits to `main`, which triggers the deploy workflow.
-
-### Images
-
-Uploads go to `src/assets/images/uploads/` and are written into frontmatter as a path
-relative to the Markdown file (`../../assets/images/uploads/…`). That is what lets
-Astro's `image()` schema helper resolve them and emit resized WebP with a `srcset`.
-
-The collection's `media_folder` and `public_folder` in `public/admin/config.yml` are
-both set to `../../assets/images/uploads` to produce exactly that. If you change where
-posts live, both values have to move with them.
-
-## Deployment
-
-`.github/workflows/deploy.yml` builds on every push to `main` and publishes to GitHub
-Pages. It uses `withastro/action`, which runs `npm ci && npm run build` — and because
-Pagefind is an npm `postbuild` script, the search index is built into `dist/pagefind/`
-and ships with the deployment.
-
-Pages must be set to **Source: GitHub Actions** in the repository settings.
+`draft: true` posts render in `npm run dev` and are dropped entirely from production:
+no page, no feed entry, no archive listing, no search hit. Full reference in
+[writing.md](docs/writing.md).
 
 ## Base-path safety
 
 The site is served from `/blog/`, not the domain root, so no internal link may be
-written as a root-absolute `/foo/` string. Every one goes through
-[`src/lib/url.ts`](src/lib/url.ts):
+written as a root-absolute `/foo/` string. Everything goes through
+[`src/lib/url.ts`](src/lib/url.ts) — `withBase()` for paths you author,
+`absFromBuiltPath()` for paths Astro produced, `absUrl()` for absolute URLs.
 
-- `withBase('/about/')` for site paths you author;
-- `absFromBuiltPath(...)` for paths Astro already resolved (`Astro.url.pathname`,
-  `ImageMetadata.src`, `paginate()` URLs) — these already carry the base;
-- `absUrl(...)` when you need the full `https://host/blog/…` form.
-
-To re-check after changes, build and confirm this prints nothing:
+To verify after any change, build and confirm this prints nothing:
 
 ```bash
 grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE '="/blog/'
 ```
+
+## Status
+
+Deployed and verified 2026-08-27: all routes returning `200`, drafts excluded, 553
+internal references resolving with 0 broken, search working against the live index,
+`npm run check` clean.
+
+Outstanding setup — none of it blocking, all of it in
+[docs/setup.md](docs/setup.md): Pages source still needs switching to GitHub Actions,
+and the CMS token, Giscus IDs, contact endpoint and author details are unset.

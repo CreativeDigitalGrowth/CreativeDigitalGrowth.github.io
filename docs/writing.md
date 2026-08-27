@@ -1,0 +1,154 @@
+# Writing and publishing posts
+
+Two ways to write: the CMS in a browser, or Markdown files in your editor. They produce
+identical results — the CMS is just an editor for the same files.
+
+## The CMS
+
+Open <https://aumniguest.github.io/blog/admin/> and choose **"Sign In Using Access
+Token"** (see [setup.md](setup.md#2-fine-grained-pat-for-the-cms)).
+
+**New Post → fill the fields → uncheck Draft → Save.**
+
+Saving is a commit to `main`. The commit triggers the deploy workflow, and the post is
+live in about a minute.
+
+### Locally
+
+```bash
+npm run dev
+```
+
+Then open **http://localhost:4321/blog/admin/index.html** — note the explicit
+`index.html`. Astro's dev server does not serve directory indexes for files in
+`public/`, so plain `/admin/` returns the 404 page. On the built and deployed site
+`/admin/` works normally.
+
+Choose **"Work with Local Repository"** and select the project folder. Sveltia uses the
+browser's File System Access API to read and write your working copy directly, so saves
+land as ordinary file changes you can inspect with `git diff` before committing. Needs a
+Chromium-based browser.
+
+The third option, *"Sign In with GitHub"*, needs an OAuth backend this project
+deliberately does not have. Ignore it.
+
+## Frontmatter
+
+Files live in `src/content/blog/`. **The filename is the URL slug** — `my-post.md`
+publishes at `/blog/my-post/`. Keep filenames lowercase and hyphenated.
+
+```yaml
+---
+title: "Post title"
+description: "One or two sentences."
+date: "2026-08-20T07:15:00.000Z"
+author: "Your Name"
+featured_image: "../../assets/images/uploads/something.jpg"
+category: "Engineering"
+tags: [astro, performance]
+draft: false
+---
+```
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `title` | string | yes | Also the `<h1>` and the CMS-generated slug |
+| `description` | string | yes | Card excerpt, meta description, social card, RSS |
+| `date` | date | yes | ISO 8601. Drives ordering, prev/next and the feed |
+| `author` | string | yes | Byline and JSON-LD |
+| `featured_image` | image | yes | Path **relative to the Markdown file** — see below |
+| `category` | string | yes | Exactly one. Creates `/category/<slug>/` |
+| `tags` | string[] | no | Defaults to `[]`. Each creates `/tag/<slug>/` |
+| `draft` | boolean | no | Defaults to `false` |
+
+The schema in [`src/content.config.ts`](../src/content.config.ts) is enforced at build
+time. A missing field, a wrong type or a broken image path **fails the build** rather
+than shipping something broken — and a failed build leaves the previous version live.
+
+## Drafts
+
+`draft: true` posts are visible with `npm run dev` and removed entirely from production
+builds: no page, no RSS item, no archive entry, no search hit, no sitemap entry. There
+is no unlisted URL for them to leak through.
+
+```bash
+npm run dev      # drafts visible
+npm run build    # drafts excluded
+npm run preview  # serves the build — exactly what deploys
+```
+
+`src/content/blog/draft-not-for-production.md` exists to prove this still works after a
+dependency upgrade. Delete it once you trust it.
+
+New posts created in the CMS **default to Draft**, so a half-written post saved from a
+phone cannot go live by accident. Uncheck the box to publish.
+
+> One caveat: a draft's *cover image* is still copied into the build output (unoptimised
+> and unreferenced), because Astro resolves `image()` for every file in the collection.
+> No page links to it, but it is reachable at a hashed URL. Draft *text* never ships.
+
+## Images
+
+Upload through the CMS and they land in `src/assets/images/uploads/`, referenced from
+frontmatter as a path relative to the Markdown file:
+
+```yaml
+featured_image: "../../assets/images/uploads/something.jpg"
+```
+
+That relative form is what lets Astro resize, convert and emit a `srcset`. A 1600×900
+JPEG of 38 KB becomes a 23 KB WebP with 320/640/960/1200w variants.
+
+In-body images work the same way:
+
+```markdown
+![Descriptive alt text](../../assets/images/uploads/something.jpg)
+```
+
+Body images are optimised too, though Astro emits a single full-width WebP rather than a
+`srcset` for Markdown images.
+
+**Do not put images in `public/`.** Anything there is copied verbatim and never
+optimised. The only images that belong in `public/` are `favicon.svg` and
+`social-card.png`, which must exist at fixed URLs.
+
+Always write real alt text. Decorative images take `alt=""`.
+
+## Categories and tags
+
+- **Category** — exactly one per post, broad. Currently: Notes, Workflow, Engineering.
+- **Tags** — two or three, specific, reused across posts.
+
+Both are slugified for URLs: `"Web Performance"` → `/tag/web-performance/`. Reuse exact
+spellings — `Engineering` and `engineering` produce the same archive, but `Eng` does not.
+
+Archives paginate at 6 posts per page (`POSTS_PER_PAGE` in `src/consts.ts`).
+
+## Post furniture, and what triggers it
+
+Most of a post page assembles itself:
+
+| Feature | Appears when |
+| --- | --- |
+| Table of contents | The post has ≥ 3 `##`/`###` headings (`TOC_MIN_HEADINGS`) |
+| Prev / next | Always, by date order — ends of the list show only one side |
+| Related posts | Always, ranked by shared category (weight 3) then shared tags (weight 1) |
+| Reading time | Always, at ~220 words per minute |
+| Share links | Always — X, LinkedIn, copy-link. Plain links, no third-party widgets |
+| Comments | Once Giscus is configured; otherwise a short notice |
+
+Use `##` for sections and `###` for subsections. Deeper levels are excluded from the
+table of contents on purpose — a four-level outline usually means the post should have
+been two posts.
+
+Every heading gets an `id` automatically, so any section can be linked to directly.
+
+## Before you publish
+
+```bash
+npm run build && npm run preview
+```
+
+`preview` is the one worth remembering: it serves the built output, so search and the
+base path behave exactly as they will once live. Search **cannot** work under
+`npm run dev` — the Pagefind index is generated from `dist/` by the `postbuild` step.
