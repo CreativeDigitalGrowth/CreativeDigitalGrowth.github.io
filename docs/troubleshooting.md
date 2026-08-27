@@ -142,14 +142,22 @@ ERROR: YOUR SITE COULD NOT BE BUILT:
 Invalid YAML front matter in /github/workspace/src/pages/about.astro
 ```
 
-**Cause.** GitHub Pages is set to *Deploy from a branch*, so a legacy Jekyll build runs
-alongside the Astro workflow. Jekyll cannot parse `.astro` files.
+**Cause.** GitHub Pages has been set to *Deploy from a branch*, so a legacy Jekyll build
+runs alongside the Astro workflow. Jekyll cannot parse `.astro` files.
 
-**Fix.** **Settings → Pages → Source: `GitHub Actions`** (needs admin). See
-[deployment.md](deployment.md#required-pages-configuration).
+**Fix.** **Settings → Pages → Source: `GitHub Actions`** (needs admin). Confirm with:
+
+```bash
+gh api repos/aumniguest/blog/pages --jq '.build_type'   # expect: workflow
+```
+
+A correctly configured repository produces exactly **one** run per push. If you see a
+`pages-build-deployment` run at all, the source has been switched back.
 
 **Do not add `.nojekyll`.** Under branch mode it makes Pages publish the raw repository
-root instead of the built site.
+root instead of the built site — strictly worse than the failure it appears to fix.
+
+*Resolved 2026-08-27; kept here because it recurs if the setting is ever changed.*
 
 ---
 

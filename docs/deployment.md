@@ -34,10 +34,14 @@ deploy a site whose search index is stale.
 
 **Settings → Pages → Build and deployment → Source must be `GitHub Actions`.**
 
-⚠️ **This is currently set to "Deploy from a branch" and needs changing** (requires
-admin — see [setup.md](setup.md#1-pages-source-do-this-first)).
+✅ Set correctly since 2026-08-27 — verify with:
 
-While it is on branch mode, *two* pipelines fire on every push:
+```bash
+gh api repos/aumniguest/blog/pages --jq '.build_type'   # expect: workflow
+```
+
+If it is ever switched back to *Deploy from a branch*, **two** pipelines fire on every
+push and the second one fails:
 
 ```
 ✓ Deploy to GitHub Pages      (this workflow)   — success
@@ -55,9 +59,9 @@ This is exactly the Jekyll limitation the stack was chosen to avoid, and it is w
 project uses the Astro Actions workflow rather than native Pages/Jekyll — category and
 tag archives and pagination need a real build step, not a plugin whitelist.
 
-The failure is currently benign: a failed Jekyll build never replaces the Actions
-deployment, which is why the live site is correct. But it produces a red run and an
-email on every push, and the configuration is wrong.
+The failure is benign in itself — a failed Jekyll build never replaces the Actions
+deployment — but it produces a red run and an email on every push, and the
+configuration is wrong.
 
 > **Never add a `.nojekyll` file to work around this.** Under branch mode it makes Pages
 > skip Jekyll and publish the **raw repository root** — `src/`, `package.json`,
@@ -91,8 +95,10 @@ curl -s -o /dev/null -w '%{http_code}\n' -L "$B/blog/draft-not-for-production/" 
 curl -s -L "$B/" | grep -ohE '(href|src)="/[^"]*"' | grep -vE '="/blog/'          # expect empty
 ```
 
-Last verified 2026-08-27: all routes `200`, draft `404`, 0 non-base-prefixed
-references, RSS containing exactly 3 items, canonical correct.
+Last verified 2026-08-27 against the live site: 18 routes `200`, drafts and unknown
+paths `404`, 0 non-base-prefixed references across four pages, RSS containing exactly 3
+items, 16 sitemap URLs (`/search/` correctly filtered out), Pagefind index reporting 4
+indexed pages.
 
 ## Rollback
 

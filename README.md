@@ -89,10 +89,12 @@ grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE
 
 ## Status
 
-Deployed and verified 2026-08-27: all routes returning `200`, drafts excluded, 553
-internal references resolving with 0 broken, search working against the live index,
-`npm run check` clean.
+Deployed and verified against the live site on 2026-08-27: 18 routes returning `200`,
+drafts and unknown paths `404`, 553 internal references resolving with 0 broken, 0
+non-base-prefixed links, search working against the live index, `npm run check` clean.
+Pages is on GitHub Actions and deploys as a single green pipeline.
 
 Outstanding setup — none of it blocking, all of it in
-[docs/setup.md](docs/setup.md): Pages source still needs switching to GitHub Actions,
-and the CMS token, Giscus IDs, contact endpoint and author details are unset.
+[docs/setup.md](docs/setup.md): the CMS token, Giscus IDs, contact form endpoint and
+author details are still unset. The site works without them; comments and the contact
+form show a short notice instead.

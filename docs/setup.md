@@ -9,7 +9,7 @@ Status as of 2026-08-27:
 | --- | --- |
 | Repository created and pushed | ✅ done |
 | GitHub Actions workflow deploying | ✅ done |
-| **Pages source set to GitHub Actions** | ❌ **still on "Deploy from a branch"** |
+| Pages source set to GitHub Actions | ✅ done |
 | Fine-grained PAT for the CMS | ❌ not created |
 | Giscus comments | ❌ not configured |
 | Contact form endpoint | ❌ not set |
@@ -17,32 +17,33 @@ Status as of 2026-08-27:
 
 ---
 
-## 1. Pages source: do this first
+## 1. Pages source ✅
 
 **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-Requires **admin** on the repository, so it has to be done by `aumniguest`.
+Done on 2026-08-27. `build_type` reads `workflow`, and a dispatched run now produces a
+single green pipeline with no accompanying `pages-build-deployment` job.
 
-The repository is currently set to *Deploy from a branch*, which runs a Jekyll build
-alongside the Astro workflow. Jekyll cannot parse `.astro` files and fails on every
-push:
+It matters because the alternative — *Deploy from a branch* — runs a Jekyll build
+alongside the Astro workflow, and Jekyll cannot parse `.astro` files:
 
 ```
 ERROR: YOUR SITE COULD NOT BE BUILT:
 Invalid YAML front matter in /github/workspace/src/pages/about.astro
 ```
 
-The failure is currently harmless — a failed Jekyll build never replaces the Actions
-deployment, which is why the live site is correct — but it produces a red run and a
-failure email on every push.
+That is the Jekyll limitation this stack was chosen to avoid: category and tag archives
+and pagination need a real build step, not a plugin whitelist.
 
-> Do **not** add a `.nojekyll` file as a shortcut. In branch-source mode that makes
-> Pages skip Jekyll and publish the **raw repository root** (`src/`, `package.json`, …)
-> instead of the built site. Changing the source is the only correct fix.
+> If this is ever switched back, do **not** reach for a `.nojekyll` file. Under
+> branch-source mode it makes Pages skip Jekyll and publish the **raw repository root**
+> (`src/`, `package.json`, …) instead of the built site. Changing the source setting is
+> the only correct fix.
 
-Afterwards, confirm a single green run:
+To confirm at any time:
 
 ```bash
+gh api repos/aumniguest/blog/pages --jq '.build_type'   # expect: workflow
 gh run list --repo aumniguest/blog --limit 3
 ```
 

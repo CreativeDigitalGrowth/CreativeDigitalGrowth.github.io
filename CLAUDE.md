@@ -81,10 +81,11 @@ behave differently between the two.
 Push to `main` → `.github/workflows/deploy.yml` builds and deploys. Saving in the CMS is
 a push. See [`docs/deployment.md`](docs/deployment.md).
 
-⚠️ Pages is currently set to *Deploy from a branch*, so a legacy Jekyll build also runs
-and fails on every push. It must be switched to **Source: GitHub Actions** (needs
-admin). Never "fix" this with a `.nojekyll` file — under branch mode that publishes the
-raw repository root instead of the built site.
+Pages source is set to **GitHub Actions** (`build_type: workflow`). Do not switch it
+back to *Deploy from a branch* — that starts a parallel Jekyll build which fails on
+every push because Jekyll cannot parse `.astro` files. And never "fix" that with a
+`.nojekyll` file: under branch mode it publishes the raw repository root instead of the
+built site.
 
 Local git authenticates as `mohiseen-aumni`; the repository is owned by `aumniguest`.
 Write access yes, admin no — repository settings cannot be changed from here.
