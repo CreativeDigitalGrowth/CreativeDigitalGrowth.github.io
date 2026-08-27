@@ -1,0 +1,98 @@
+# Sveltia CMS configuration.
+#
+# Auth: GitHub backend with fine-grained Personal Access Token login. There is no
+# `base_url` and no OAuth backend — on the login screen choose "Sign in with Token"
+# and paste a PAT scoped to this repository. Nothing secret lives in this file.
+
+backend:
+  name: github
+  repo: aumniguest/blog
+  branch: main
+
+# Commit straight to `branch` rather than opening editorial-workflow PRs.
+publish_mode: simple
+
+# Allows `npx @sveltia/cms-proxy-server` to serve the working tree at
+# http://localhost:4321/admin/ so edits write to disk instead of GitHub.
+local_backend: true
+
+site_url: https://aumniguest.github.io/blog
+display_url: https://aumniguest.github.io/blog
+
+# Fallback media location so the media library has somewhere to browse. The blog
+# collection below overrides both values; nothing in this site relies on these.
+media_folder: src/assets/images/uploads
+public_folder: /src/assets/images/uploads
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Post
+    description: "Posts published at /blog/<slug>/"
+    folder: src/content/blog
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    # Filename becomes the URL slug, derived from the title: lowercase, hyphenated.
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    sortable_fields: [date, title, category]
+    preview_path: blog/{{slug}}
+    preview_path_date_field: date
+
+    # Uploads land in src/assets/images/uploads/ (relative to this collection's
+    # `folder`), and the SAME relative string is written into the frontmatter.
+    # From src/content/blog/post.md that resolves to src/assets/images/uploads/…,
+    # which is exactly what Astro's image() schema helper needs to optimise it.
+    media_folder: ../../assets/images/uploads
+    public_folder: ../../assets/images/uploads
+
+    fields:
+      - name: title
+        label: Title
+        widget: string
+
+      - name: description
+        label: Description
+        widget: text
+        hint: "One or two sentences. Used for the card excerpt, meta description and social cards."
+
+      - name: date
+        label: Date
+        widget: datetime
+        format: "YYYY-MM-DDTHH:mm:ss.SSSZ"
+        picker_utc: true
+
+      - name: author
+        label: Author
+        widget: string
+        default: Your Name
+
+      - name: featured_image
+        label: Featured image
+        widget: image
+        choose_url: false
+        hint: "Landscape works best - it is cropped to 16:9 on cards and shown full-width on the post."
+
+      - name: category
+        label: Category
+        widget: string
+        hint: "One category per post. Existing ones: Notes, Workflow, Engineering."
+
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        default: []
+        hint: "Two or three is plenty. Reuse existing tags so the archives stay useful."
+
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: true
+        hint: "New posts start as drafts. Turn this off to publish - drafts never reach the live site."
+
+      - name: body
+        label: Body
+        widget: markdown

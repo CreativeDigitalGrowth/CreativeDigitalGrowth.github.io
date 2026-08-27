@@ -1,0 +1,40 @@
+---
+import { SITE_TITLE } from '../consts';
+import { withBase } from '../lib/url';
+import ThemeToggle from './ThemeToggle.astro';
+
+const nav = [
+  { label: 'Blog', href: '/blog/' },
+  { label: 'About', href: '/about/' },
+  { label: 'Search', href: '/search/' },
+  { label: 'Contact', href: '/contact/' },
+];
+
+// Trailing-slash-insensitive comparison so /blog/2/ still highlights "Blog".
+const here = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isCurrent = (href: string) => {
+  const target = withBase(href).replace(/\/+$/, '') || '/';
+  return here === target || here.startsWith(`${target}/`);
+};
+---
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href={withBase('/')}>
+      <span class="mark" aria-hidden="true">{SITE_TITLE.charAt(0)}</span>
+      {SITE_TITLE}
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      {
+        nav.map((item) => (
+          <a href={withBase(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <ThemeToggle />
+  </div>
+</header>

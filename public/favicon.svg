@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#9a3412" />
+  <path d="M23 45V19h19v5.6H29.4v5.7h11.2v5.6H29.4V45z" fill="#fff" />
+  <style>
+    rect { fill: #9a3412; }
+    @media (prefers-color-scheme: dark) { rect { fill: #fb923c; } path { fill: #14140f; } }
+  </style>
+</svg>

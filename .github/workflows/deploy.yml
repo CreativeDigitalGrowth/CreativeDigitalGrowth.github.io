@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Every push to main — which is what saving in the CMS produces.
+  push:
+    branches: [main]
+  # Manual re-run from the Actions tab.
+  workflow_dispatch:
+
+# Least privilege: read the repo, write a Pages deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let an in-flight deploy finish rather than cancelling it mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Runs `npm ci` then `npm run build`, which triggers the `postbuild`
+      # script — that is where Pagefind indexes dist/ and writes dist/pagefind/,
+      # so the search index is part of the uploaded artifact.
+      - name: Build with Astro
+        uses: withastro/action@v6
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

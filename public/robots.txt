@@ -1,0 +1,12 @@
+# Served at https://aumniguest.github.io/blog/robots.txt
+#
+# Note: crawlers only honour robots.txt at a DOMAIN root. On a GitHub Pages
+# project site that root belongs to aumniguest.github.io, not to this repo, so
+# this file is advisory here. It becomes authoritative the moment the blog moves
+# to a custom domain or to a user site.
+
+User-agent: *
+Allow: /
+Disallow: /blog/admin/
+
+Sitemap: https://aumniguest.github.io/blog/sitemap-index.xml

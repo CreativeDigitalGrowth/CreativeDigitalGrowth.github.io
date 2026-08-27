@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Content Manager</title>
+
+    <!--
+      Config lives beside this file. The href is relative on purpose: the site is
+      served from a sub-path (/blog/), so an absolute /admin/config.yml would 404.
+    -->
+    <link href="config.yml" type="text/yaml" rel="cms-config-url" />
+  </head>
+  <body>
+    <!--
+      Sveltia CMS, loaded from its official CDN exactly as the docs specify:
+      no `type="module"`, and no stylesheet — all styles are bundled in the JS.
+
+      This URL tracks the latest release, so bug fixes arrive without a redeploy.
+      To pin instead (verified current release at time of setup: 0.201.1), swap in:
+        <script src="https://unpkg.com/@sveltia/cms@0.201.1/dist/sveltia-cms.js"></script>
+    -->
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>
