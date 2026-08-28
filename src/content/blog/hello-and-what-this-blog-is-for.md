@@ -1,14 +1,15 @@
 ---
-title: "Hello, and what this blog is for"
-description: "A short first post explaining who writes here, what gets published, and how often to expect it."
-date: "2026-07-30T09:00:00.000Z"
-author: "Your Name"
-featured_image: "../../assets/images/uploads/placeholder-notebook.jpg"
-category: "Notes"
+title: Hello, and what this blog is for
+description: A short first post explaining who writes here, what gets published, and how often to expect it.
+date: 2026-07-30T09:00:00.000Z
+author: Your Name
+featured_image: ../../assets/images/uploads/placeholder-notebook.jpg
+category: Notes
 tags:
   - writing
   - meta
 draft: false
+map_embed: <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d8340.3524258558!2d79.4202911!3d13.636149!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a4d4b1aaa7262d1%3A0x34ad19e1f20c8e1!2sDr.%20Manoj%20Urology%20and%20Kidney%20Care!5e1!3m2!1sen!2sin!4v1787937854345!5m2!1sen!2sin" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 ---
 
 Every placeholder sentence on this page is meant to be replaced. It exists so the layout,
