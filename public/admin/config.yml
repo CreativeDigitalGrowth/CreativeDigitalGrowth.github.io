@@ -1,8 +1,15 @@
 # Sveltia CMS configuration.
 #
-# Auth: GitHub backend with fine-grained Personal Access Token login. There is no
-# `base_url` and no OAuth backend — on the login screen choose "Sign in with Token"
-# and paste a PAT scoped to this repository. Nothing secret lives in this file.
+# Auth: GitHub backend with fine-grained Personal Access Token login.
+#
+# Use the "Sign In Using Access Token" button. The "Sign In with GitHub" button starts
+# an OAuth flow that requires a server to hold a client secret; there is no `base_url`
+# here and no OAuth backend, so it falls back to Netlify's provider (which this site is
+# not registered with) and hangs on "Signing in...". Sveltia offers no option to hide
+# it. Adding OAuth would mean a GitHub OAuth App plus the sveltia-cms-auth Cloudflare
+# Worker -- a hosted service and a long-lived secret this project avoids on purpose.
+#
+# Nothing secret lives in this file.
 
 backend:
   name: github

@@ -161,6 +161,37 @@ root instead of the built site — strictly worse than the failure it appears to
 
 ---
 
+## CMS: "Sign In with GitHub" hangs on "Signing in…"
+
+**This button cannot work on this site, and that is by design.** Use **"Sign In Using
+Access Token"** instead.
+
+**Cause.** The GitHub button starts an *OAuth* flow, which needs a server to hold the
+OAuth client secret — a secret cannot live in a static site. When `base_url` is absent
+from `public/admin/config.yml`, Sveltia falls back to Netlify's hosted OAuth provider,
+which this site is not registered with. The popup never returns a token, so the screen
+sits on "Signing in…" forever rather than showing an error.
+
+There is no configuration option to hide the button; Sveltia always renders both.
+
+**Fix.** Click **"Sign In Using Access Token"** and paste a fine-grained PAT — see
+[setup.md](setup.md#2-fine-grained-pat-for-the-cms). This is the intended route and the
+one that produced every CMS commit in this repository so far.
+
+**If you would rather have the GitHub button work**, it needs an OAuth backend:
+
+1. A GitHub OAuth App (client ID + client secret).
+2. The [`sveltia-cms-auth`](https://github.com/sveltia/sveltia-cms-auth) Cloudflare
+   Worker deployed to hold the secret.
+3. `base_url: https://sveltia-cms-auth.<subdomain>.workers.dev` added to the `backend`
+   block in `public/admin/config.yml`.
+
+That is a deliberate trade: it adds a hosted service and a long-lived secret to
+maintain, which this project was set up specifically to avoid. The token route needs
+neither.
+
+---
+
 ## A new post does not appear on the site
 
 Two causes, in order of likelihood.

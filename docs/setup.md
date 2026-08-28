@@ -68,6 +68,13 @@ Create it at <https://github.com/settings/personal-access-tokens/new>:
 Then open <https://aumniguest.github.io/blog/admin/>, choose **"Sign In Using Access
 Token"** and paste it.
 
+> **Ignore the "Sign In with GitHub" button.** It starts an OAuth flow that needs a
+> server to hold a client secret, which a static site cannot have. With no `base_url`
+> configured, Sveltia falls back to Netlify's OAuth provider — which this site is not
+> registered with — so it hangs on "Signing in…" rather than failing visibly. Sveltia
+> offers no way to hide it. See
+> [troubleshooting.md](troubleshooting.md#cms-sign-in-with-github-hangs-on-signing-in).
+
 **Treat the token like a password.** It can read and write everything in this
 repository. Do not paste it anywhere else, do not commit it, and revoke it from the
 same settings page the moment you suspect it has leaked. See [SECURITY.md](../SECURITY.md).
