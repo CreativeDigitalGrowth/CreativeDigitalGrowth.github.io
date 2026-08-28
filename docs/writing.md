@@ -60,10 +60,37 @@ draft: false
 | `category` | string | yes | Exactly one. Creates `/category/<slug>/` |
 | `tags` | string[] | no | Defaults to `[]`. Each creates `/tag/<slug>/` |
 | `draft` | boolean | no | Defaults to `false` |
+| `map_embed` | string | no | Google Maps embed snippet — see below |
 
 The schema in [`src/content.config.ts`](../src/content.config.ts) is enforced at build
 time. A missing field, a wrong type or a broken image path **fails the build** rather
 than shipping something broken — and a failed build leaves the previous version live.
+
+## Location maps
+
+Leave **Location map** empty and nothing renders. Fill it in and a **Location** heading
+plus a full-width map appear directly below the post body.
+
+Get the value from Google Maps: find the place → **Share** → **Embed a map** → **COPY
+HTML**. Paste the whole thing in; it looks like this:
+
+```html
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!..." width="600" height="450"
+        style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+```
+
+Only the `src` is used. Everything else — the hardcoded `600×450`, inline styles, any
+other attributes — is discarded and the site supplies its own, so the map always fills
+the column width: 16:9 on desktop, 4:3 on phones where a wide strip is too short to be
+usable. A bare URL works too if you would rather paste just that.
+
+Anything that is not an `https` URL renders nothing rather than something broken, so a
+typo costs you a missing map, not a broken page.
+
+**One privacy trade-off worth knowing:** a Google map is a third-party embed. On posts
+that use it, the reader's browser contacts Google. Every other page on this site makes
+no third-party requests at all. The map loads lazily, so it costs nothing until the
+reader scrolls to it.
 
 ## Drafts
 

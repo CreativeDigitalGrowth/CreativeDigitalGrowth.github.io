@@ -761,6 +761,41 @@ main {
   text-decoration: underline;
 }
 
+/* Location map ------------------------------------------------------------- */
+
+.location {
+  margin-block-start: 3rem;
+}
+
+.location h2 {
+  margin-block-end: 1rem;
+}
+
+/* Full width of the reading column, with the aspect ratio reserving space so the
+   lazily-loaded iframe cannot shift the page as it arrives. Taller on narrow
+   screens, where a 16:9 strip is too short to be usable. */
+.location-map {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-subtle);
+}
+
+@media (min-width: 40rem) {
+  .location-map {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.location-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 /* Post footer -------------------------------------------------------------- */
 
 .post-foot {

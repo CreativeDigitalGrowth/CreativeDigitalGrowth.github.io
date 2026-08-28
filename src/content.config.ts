@@ -19,6 +19,9 @@ const blog = defineCollection({
       category: z.string(),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
+      // Optional Google Maps "Share -> Embed a map" snippet. Stored verbatim; only
+      // the src is used at render time (see src/lib/maps.ts).
+      map_embed: z.string().optional(),
     }),
 });
 

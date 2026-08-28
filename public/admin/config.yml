@@ -113,6 +113,12 @@ collections:
         default: true
         hint: "New posts start as drafts. Turn this off to publish - drafts never reach the live site."
 
+      - name: map_embed
+        label: Location map
+        widget: text
+        required: false
+        hint: "Optional. Google Maps > Share > Embed a map > copy HTML, and paste the whole <iframe ...> here. Only the map address is used - size is set by the site, so the map always fills the width."
+
       - name: body
         label: Body
         widget: markdown

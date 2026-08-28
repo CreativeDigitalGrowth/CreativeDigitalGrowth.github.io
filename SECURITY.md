@@ -60,6 +60,8 @@ scripts, no web fonts, no cookie banner, and no third-party requests except:
 
 - `unpkg.com` — the Sveltia CMS bundle, loaded only on `/admin`;
 - `giscus.app` — the comment widget, loaded lazily on post pages once configured;
+- `google.com` — only on posts that fill in the **Location map** field, and only when
+  the reader scrolls far enough for the lazily-loaded iframe to fetch;
 - whichever form service you configure for `/contact/`, on submit only.
 
 Comments are GitHub Discussions. Commenters are identified by their GitHub account and

@@ -149,6 +149,18 @@ The fallback approach — `public/images/uploads/` with a base-aware helper — 
 needed. The relative-path resolution works, and it is the better option because
 `public/` images are never optimised.
 
+## Location maps
+
+`map_embed` is an optional per-post field holding a Google Maps embed snippet. The
+pasted HTML is never rendered: `src/lib/maps.ts` extracts the `src`, rejects anything
+that is not an https URL, and `LocationMap.astro` builds a fresh iframe from it. That
+keeps author-supplied markup out of the page and lets the site override Google's
+hardcoded `600×450` with a frame that fills the column — 16:9 above 40rem, 4:3 below.
+
+The wrapper carries a fixed `aspect-ratio`, so the lazily-loaded iframe reserves its
+space and cannot shift the page when it arrives. This is the only third-party embed on
+the site, and only on posts that opt into it.
+
 ## Search
 
 Pagefind indexes the built HTML, so it runs as an npm `postbuild` script rather than an
