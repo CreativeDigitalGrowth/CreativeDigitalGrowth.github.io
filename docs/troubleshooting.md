@@ -207,31 +207,33 @@ neither.
 The link points at `https://aumniguest.github.io/blog/<slug>/` — one `blog/` short of
 the real URL, `https://aumniguest.github.io/blog/blog/<slug>/`.
 
-**Cause.** Sveltia builds preview links with `new URL(preview_path, site_url)`. If
-`site_url` has **no trailing slash**, the last segment is treated as a filename and
-relative resolution discards it:
+**Cause.** Sveltia keeps only the **origin** of `site_url` when building preview links.
+From the bundle:
 
 ```js
-new URL('blog/my-post/', 'https://aumniguest.github.io/blog')
-//   -> https://aumniguest.github.io/blog/my-post/      ✗ the /blog was replaced
-
-new URL('blog/my-post/', 'https://aumniguest.github.io/blog/')
-//   -> https://aumniguest.github.io/blog/blog/my-post/ ✓
+_baseURL = new URL(_siteURL).origin              // the "/blog" path is discarded
+…
+return `${baseURL.replace(/\/$/, '')}/${previewPath.replace(/^\//, '')}`
 ```
 
-This only bites a site served from a sub-path. At a domain root there is no segment to
-lose, which is why it is easy to ship.
+So the link is `origin + "/" + preview_path`. The base path in `site_url` never reaches
+it, and adding a trailing slash to `site_url` changes nothing — `.origin` drops the path
+either way.
 
-**Fix (applied 2026-08-28).** In `public/admin/config.yml`:
+**Fix.** `preview_path` must spell out the whole path **from the origin**, which on a
+project site means repeating the base:
 
 ```yaml
-site_url: https://aumniguest.github.io/blog/     # trailing slash is load-bearing
-display_url: https://aumniguest.github.io/blog/
-...
-    preview_path: blog/{{slug}}/                 # trailing slash matches trailingSlash: 'always'
+preview_path: blog/blog/{{slug}}/
+#             ^^^^ GitHub Pages project-site base
+#                  ^^^^ this collection's route
 ```
 
-Keep both trailing slashes if you ever change the base path or move to a custom domain.
+`site_url` and `display_url` still carry the full URL: only `site_url`'s origin is used
+for preview links, but `display_url` is used verbatim for the "visit site" link.
+
+If the base path ever changes — a custom domain, a renamed repo — the first segment of
+`preview_path` has to change with it.
 
 ---
 
