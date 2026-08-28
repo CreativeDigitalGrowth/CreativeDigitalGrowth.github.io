@@ -7,7 +7,7 @@ featured_image: https://picsum.photos/id/727/1920/1280.webp
 category: test
 tags:
   - test
-draft: true
+draft: false
 ---
 
 body content
