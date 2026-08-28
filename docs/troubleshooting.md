@@ -202,6 +202,39 @@ neither.
 
 ---
 
+## CMS "View on Live Site" link 404s
+
+The link points at `https://aumniguest.github.io/blog/<slug>/` — one `blog/` short of
+the real URL, `https://aumniguest.github.io/blog/blog/<slug>/`.
+
+**Cause.** Sveltia builds preview links with `new URL(preview_path, site_url)`. If
+`site_url` has **no trailing slash**, the last segment is treated as a filename and
+relative resolution discards it:
+
+```js
+new URL('blog/my-post/', 'https://aumniguest.github.io/blog')
+//   -> https://aumniguest.github.io/blog/my-post/      ✗ the /blog was replaced
+
+new URL('blog/my-post/', 'https://aumniguest.github.io/blog/')
+//   -> https://aumniguest.github.io/blog/blog/my-post/ ✓
+```
+
+This only bites a site served from a sub-path. At a domain root there is no segment to
+lose, which is why it is easy to ship.
+
+**Fix (applied 2026-08-28).** In `public/admin/config.yml`:
+
+```yaml
+site_url: https://aumniguest.github.io/blog/     # trailing slash is load-bearing
+display_url: https://aumniguest.github.io/blog/
+...
+    preview_path: blog/{{slug}}/                 # trailing slash matches trailingSlash: 'always'
+```
+
+Keep both trailing slashes if you ever change the base path or move to a custom domain.
+
+---
+
 ## A new post does not appear on the site
 
 Two causes, in order of likelihood.

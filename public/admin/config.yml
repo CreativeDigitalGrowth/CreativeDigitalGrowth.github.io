@@ -23,8 +23,12 @@ publish_mode: simple
 # http://localhost:4321/admin/ so edits write to disk instead of GitHub.
 local_backend: true
 
-site_url: https://aumniguest.github.io/blog
-display_url: https://aumniguest.github.io/blog
+# The trailing slash is load-bearing. Sveltia builds preview links with
+# `new URL(preview_path, site_url)`; without it, "/blog" is treated as a filename
+# and relative resolution discards it, so preview_path "blog/<slug>/" collapses to
+# /blog/<slug>/ instead of /blog/blog/<slug>/.
+site_url: https://aumniguest.github.io/blog/
+display_url: https://aumniguest.github.io/blog/
 
 # Fallback media location so the media library has somewhere to browse. The blog
 # collection below overrides both values; nothing in this site relies on these.
@@ -45,7 +49,9 @@ collections:
     slug: "{{slug}}"
     summary: "{{title}}"
     sortable_fields: [date, title, category]
-    preview_path: blog/{{slug}}
+    # Route within the site, resolved against site_url above. The trailing slash
+    # matches astro.config.mjs `trailingSlash: 'always'`.
+    preview_path: blog/{{slug}}/
     preview_path_date_field: date
 
     # Uploads land in src/assets/images/uploads/ (relative to this collection's
