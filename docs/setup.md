@@ -68,11 +68,10 @@ Create it at <https://github.com/settings/personal-access-tokens/new>:
 Then open <https://aumniguest.github.io/blog/admin/>, choose **"Sign In Using Access
 Token"** and paste it.
 
-> **Ignore the "Sign In with GitHub" button.** It starts an OAuth flow that needs a
-> server to hold a client secret, which a static site cannot have. With no `base_url`
-> configured, Sveltia falls back to Netlify's OAuth provider — which this site is not
-> registered with — so it hangs on "Signing in…" rather than failing visibly. Sveltia
-> offers no way to hide it. See
+> There is no "Sign In with GitHub" button on the login screen. It starts an OAuth flow
+> that needs a server to hold a client secret, which a static site cannot have, so it
+> hung on "Signing in…" forever. Sveltia offers no config option to disable it, so a
+> small fail-open script in `public/admin/index.html` hides it. See
 > [troubleshooting.md](troubleshooting.md#cms-sign-in-with-github-hangs-on-signing-in).
 
 **Treat the token like a password.** It can read and write everything in this

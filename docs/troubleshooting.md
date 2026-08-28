@@ -163,6 +163,9 @@ root instead of the built site — strictly worse than the failure it appears to
 
 ## CMS: "Sign In with GitHub" hangs on "Signing in…"
 
+**Hidden since 2026-08-28** — the login screen now offers only the routes that work. If
+you see the button again, the patch described below has stopped matching.
+
 **This button cannot work on this site, and that is by design.** Use **"Sign In Using
 Access Token"** instead.
 
@@ -172,7 +175,14 @@ from `public/admin/config.yml`, Sveltia falls back to Netlify's hosted OAuth pro
 which this site is not registered with. The popup never returns a token, so the screen
 sits on "Signing in…" forever rather than showing an error.
 
-There is no configuration option to hide the button; Sveltia always renders both.
+Sveltia offers no configuration option to hide it, so `public/admin/index.html` carries
+a small script that removes it from the login screen. That script is deliberately
+**fail-open**: unless it finds exactly one OAuth button and exactly one token button, it
+does nothing. Verified against three cases — an ambiguous second OAuth-looking button, a
+missing token button, and normal markup — it only ever hides the right one. The worst
+case after a Sveltia update is the button reappearing, never the wrong one vanishing.
+
+Delete that script if an OAuth backend is ever configured.
 
 **Fix.** Click **"Sign In Using Access Token"** and paste a fine-grained PAT — see
 [setup.md](setup.md#2-fine-grained-pat-for-the-cms). This is the intended route and the
