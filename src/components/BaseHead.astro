@@ -1,6 +1,7 @@
 ---
 import { SITE_TITLE, SITE_DESCRIPTION, DEFAULT_OG_IMAGE, AUTHOR_NAME } from '../consts';
-import { absFromBuiltPath, absUrl, withBase } from '../lib/url';
+import { getImage } from 'astro:assets';
+import { absFromBuiltPath, absUrl, isAbsoluteUrl, withBase } from '../lib/url';
 
 interface Props {
   /** Page-specific title. Omit on the home page to use the site title alone. */
@@ -27,13 +28,24 @@ const pageTitle = title ? `${title} — ${SITE_TITLE}` : SITE_TITLE;
 // Astro.url.pathname is a built path: the base is already on it.
 const canonical = absFromBuiltPath(Astro.url.pathname, Astro.site);
 
-// An ImageMetadata.src is likewise emitted with the base applied, whereas a plain
-// string is a path inside /public that still needs it.
-const ogImage = typeof image === 'string'
-  ? absUrl(image, Astro.site)
-  : image
-    ? absFromBuiltPath(image.src, Astro.site)
-    : absUrl(DEFAULT_OG_IMAGE, Astro.site);
+/**
+ * Social-card image. Three shapes arrive here and each needs different handling:
+ *   - a remote URL   -> fetched and re-emitted locally, so previews do not depend
+ *                       on a third-party host staying up
+ *   - a /public path -> needs the base prefix
+ *   - ImageMetadata  -> .src already carries the base
+ */
+let ogImage: string;
+if (typeof image === 'string' && isAbsoluteUrl(image)) {
+  const resolved = await getImage({ src: image, inferSize: true, width: 1200, format: 'webp' });
+  ogImage = absFromBuiltPath(resolved.src, Astro.site);
+} else if (typeof image === 'string') {
+  ogImage = absUrl(image, Astro.site);
+} else if (image) {
+  ogImage = absFromBuiltPath(image.src, Astro.site);
+} else {
+  ogImage = absUrl(DEFAULT_OG_IMAGE, Astro.site);
+}
 
 const jsonLd = article
   ? {

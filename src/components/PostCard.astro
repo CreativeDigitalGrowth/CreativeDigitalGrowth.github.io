@@ -1,9 +1,9 @@
 ---
-import { Image } from 'astro:assets';
 import type { Post } from '../lib/posts';
 import { postPath } from '../lib/posts';
 import { slugify, withBase } from '../lib/url';
 import FormattedDate from './FormattedDate.astro';
+import FeaturedImage from './FeaturedImage.astro';
 
 interface Props {
   post: Post;
@@ -19,13 +19,12 @@ const href = withBase(postPath(post));
 <li>
   <article class="card">
     <a class="card-media" href={href} tabindex="-1" aria-hidden="true">
-      <Image
+      <FeaturedImage
         src={featured_image}
         alt=""
         widths={[320, 640, 960]}
         sizes="(min-width: 64rem) 20rem, (min-width: 40rem) 45vw, 92vw"
         loading={eager ? 'eager' : 'lazy'}
-        decoding="async"
       />
     </a>
 

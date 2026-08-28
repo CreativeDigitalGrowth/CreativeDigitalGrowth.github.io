@@ -28,8 +28,18 @@ export function withBase(path = '/'): string {
   return isFile || joined.endsWith('/') ? joined : `${joined}/`;
 }
 
-/** Absolute URL for a site path we author — base is applied. */
+/** True for `https://…` / `http://…` — a path that is already somewhere else. */
+export function isAbsoluteUrl(path: string): boolean {
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(path);
+}
+
+/**
+ * Absolute URL for a site path we author — base is applied.
+ * An input that is already an absolute URL is returned untouched, so a remote
+ * featured image does not get the site origin glued onto the front of it.
+ */
 export function absUrl(path: string, site: URL | undefined): string {
+  if (isAbsoluteUrl(path)) return path;
   return new URL(withBase(path), site ?? 'http://localhost/').href;
 }
 

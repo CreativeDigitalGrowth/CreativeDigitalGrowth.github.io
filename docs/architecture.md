@@ -100,13 +100,13 @@ grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE
 ```
 
 The full audit — every internal link, `srcset` entry and in-page anchor resolved against
-the built output — currently passes at 553 references, 0 broken.
+the built output — currently passes at 704 references, 0 broken.
 
 ## Content pipeline
 
 `content.config.ts` uses the glob loader over `src/content/blog` and types
-`featured_image` as `image()`. The entry `id` is derived from the filename and becomes
-the URL slug.
+`featured_image` as `z.union([image(), z.string().url()])` — an upload or a remote URL.
+The entry `id` is derived from the filename and becomes the URL slug.
 
 Draft filtering happens once, in `getPosts()`:
 
@@ -136,6 +136,14 @@ Collection-level relative paths in Sveltia are resolved against the collection's
 file goes; `public_folder` decides what gets written into the post.
 
 If posts ever move, both values move with them.
+
+`featured_image` is typed `z.union([image(), z.string().url()])`, so a post may use an
+upload *or* a remote URL. `src/components/FeaturedImage.astro` is the single place that
+knows the difference: remote sources get `inferSize` so Astro fetches them at build time
+for their dimensions, and `image.remotePatterns` authorises optimising them. The result
+is that a pasted URL is downloaded, resized and re-served from this origin — including
+in the `og:image` tag — so both routes end up optimised and neither costs the reader a
+third-party request.
 
 The fallback approach — `public/images/uploads/` with a base-aware helper — was **not**
 needed. The relative-path resolution works, and it is the better option because

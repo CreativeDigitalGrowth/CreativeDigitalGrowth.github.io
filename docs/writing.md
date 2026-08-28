@@ -108,6 +108,26 @@ In-body images work the same way:
 Body images are optimised too, though Astro emits a single full-width WebP rather than a
 `srcset` for Markdown images.
 
+### Remote image URLs
+
+Pasting an image URL instead of uploading works too:
+
+```yaml
+featured_image: "https://example.com/photo.jpg"
+```
+
+Astro downloads it **at build time**, resizes it and re-serves it from this site, so it
+gets the same optimisation as an upload and readers make no third-party request. The
+social-card tags point at the local copy as well.
+
+Two consequences worth knowing:
+
+- The build fetches that URL. If the host is unreachable when CI runs, the build fails.
+- The image is snapshotted at build time — changing it at the source does nothing until
+  the next build.
+
+Uploading is still the more robust option. A URL is a convenience, not the default.
+
 **Do not put images in `public/`.** Anything there is copied verbatim and never
 optimised. The only images that belong in `public/` are `favicon.svg` and
 `social-card.png`, which must exist at fixed URLs.

@@ -161,6 +161,57 @@ root instead of the built site — strictly worse than the failure it appears to
 
 ---
 
+## A new post does not appear on the site
+
+Two causes, in order of likelihood.
+
+**1. It is still a draft.** New posts created in the CMS default to **Draft**, on
+purpose, so a half-written post cannot publish itself. Drafts build fine and are then
+excluded from the output — so the deploy goes *green* and the post still does not
+appear, which is the confusing part.
+
+Check the committed file:
+
+```bash
+gh api repos/aumniguest/blog/contents/src/content/blog/<slug>.md --jq '.content' | base64 -d | head
+```
+
+If it says `draft: true`, untick **Draft** in the CMS and save again.
+
+**2. The build failed, so nothing deployed.** A failed build leaves the previous
+version live — which looks identical to "my post did not appear".
+
+```bash
+gh run list --repo aumniguest/blog --limit 5
+```
+
+A `failure` row is the answer. See the next entry for the most common cause.
+
+---
+
+## Build fails: `MissingImageDimension` on a remote image
+
+```
+MissingImageDimension: Missing width and height attributes for https://example.com/x.webp.
+When using remote images, both dimensions are required in order to avoid CLS.
+Caught error rendering /blog/<slug>/
+```
+
+**Cause.** A `featured_image` pointing at a URL rather than an upload. Astro cannot know
+a remote image's dimensions without fetching it, and rendering without them would cause
+layout shift — so it refuses.
+
+**Fixed as of 2026-08-28.** `src/components/FeaturedImage.astro` passes `inferSize` for
+remote sources so Astro fetches them at build time, and `image.remotePatterns` in
+`astro.config.mjs` authorises optimising them. Remote URLs now work everywhere a local
+upload does.
+
+If it recurs, it means a `<Image>` is being used directly on a `featured_image` value
+somewhere instead of going through `FeaturedImage.astro`. Route it through the
+component rather than adding `inferSize` at the call site.
+
+---
+
 ## `git push` rejected, or "Everything up-to-date" when you expected a push
 
 Check what you actually have:

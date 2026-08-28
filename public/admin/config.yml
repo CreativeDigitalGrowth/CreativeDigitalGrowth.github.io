@@ -72,8 +72,11 @@ collections:
       - name: featured_image
         label: Featured image
         widget: image
-        choose_url: false
-        hint: "Landscape works best - it is cropped to 16:9 on cards and shown full-width on the post."
+        # URLs are allowed as well as uploads: a remote image is downloaded at
+        # build time, resized and re-served from this site, so either route ends
+        # up optimised and costs the reader no third-party request.
+        choose_url: true
+        hint: "Upload a file or paste an image URL. Landscape works best - cropped to 16:9 on cards, full width on the post."
 
       - name: category
         label: Category

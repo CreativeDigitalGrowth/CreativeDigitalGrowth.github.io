@@ -1,9 +1,9 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
+import FeaturedImage from '../../components/FeaturedImage.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
 import ShareLinks from '../../components/ShareLinks.astro';
 import Comments from '../../components/Comments.astro';
@@ -50,7 +50,7 @@ const canonical = absUrl(postPath(post), Astro.site);
     </header>
 
     <figure class="post-hero">
-      <Image
+      <FeaturedImage
         src={featured_image}
         alt={`Cover image for ${title}`}
         widths={[480, 800, 1200, 1600]}

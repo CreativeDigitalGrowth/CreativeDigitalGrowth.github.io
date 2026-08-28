@@ -1,7 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import FeaturedImage from '../components/FeaturedImage.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import { getPosts, getCategories, postPath, readingTime } from '../lib/posts';
 import { slugify, withBase } from '../lib/url';
@@ -36,7 +36,7 @@ const categories = getCategories(posts);
 
         <article class="featured">
           <a class="featured-media" href={withBase(postPath(featured))} tabindex="-1" aria-hidden="true">
-            <Image
+            <FeaturedImage
               src={featured.data.featured_image}
               alt=""
               widths={[480, 800, 1200]}

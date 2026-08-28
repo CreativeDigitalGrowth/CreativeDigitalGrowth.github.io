@@ -12,7 +12,10 @@ const blog = defineCollection({
       description: z.string(),
       date: z.coerce.date(),
       author: z.string(),
-      featured_image: image(),
+      // Local upload (optimised via the asset pipeline) or a remote URL.
+      // The union keeps the runtime type honest — image() passes URLs through
+      // as plain strings rather than resolving them to ImageMetadata.
+      featured_image: z.union([image(), z.string().url()]),
       category: z.string(),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),

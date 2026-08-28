@@ -15,6 +15,12 @@ export default defineConfig({
       filter: (page) => !page.endsWith('/search/'),
     }),
   ],
+  image: {
+    // Remote featured images (a pasted stock-photo URL, say) are downloaded at
+    // build time, resized and served from this origin — so they get the same
+    // treatment as local uploads and cost the reader no third-party request.
+    remotePatterns: [{ protocol: 'https' }],
+  },
   markdown: {
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
