@@ -37,8 +37,14 @@ const canonical = absFromBuiltPath(Astro.url.pathname, Astro.site);
  */
 let ogImage: string;
 if (typeof image === 'string' && isAbsoluteUrl(image)) {
-  const resolved = await getImage({ src: image, inferSize: true, width: 1200, format: 'webp' });
-  ogImage = absFromBuiltPath(resolved.src, Astro.site);
+  try {
+    const resolved = await getImage({ src: image, inferSize: true, width: 1200, format: 'webp' });
+    ogImage = absFromBuiltPath(resolved.src, Astro.site);
+  } catch {
+    // Host unreachable at build time — point social scrapers at the original URL
+    // rather than failing the build over a preview image.
+    ogImage = image;
+  }
 } else if (typeof image === 'string') {
   ogImage = absUrl(image, Astro.site);
 } else if (image) {

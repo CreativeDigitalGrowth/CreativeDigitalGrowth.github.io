@@ -149,7 +149,10 @@ social-card tags point at the local copy as well.
 
 Two consequences worth knowing:
 
-- The build fetches that URL. If the host is unreachable when CI runs, the build fails.
+- The build fetches that URL. If the host is unreachable, the image is **not** optimised
+  — it falls back to loading from its original host and the build logs a warning. The
+  build still succeeds and the page still renders; you just lose the optimisation and
+  the reader makes a third-party request.
 - The image is snapshotted at build time — changing it at the source does nothing until
   the next build.
 

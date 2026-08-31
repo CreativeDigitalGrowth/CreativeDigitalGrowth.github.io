@@ -237,6 +237,81 @@ If the base path ever changes — a custom domain, a renamed repo — the first 
 
 ---
 
+## Local looks different from the live site
+
+Work through these in order.
+
+**1. Is git actually behind?** Saving in the CMS commits to GitHub, not to your working
+copy — those posts only reach you when you pull.
+
+```bash
+git fetch origin main
+git status -sb                      # "behind N" means pull
+git log --oneline HEAD..origin/main # what you are missing
+git pull --ff-only origin main
+```
+
+**2. `npm run dev` shows one *more* post than live.** That is drafts. Dev includes them,
+production excludes them. A local count of 6 against a live count of 5 is correct
+behaviour, not drift.
+
+**3. A stale dev server.** A long-running `astro dev` that was started before a `git
+pull` can end up in a bad state — reporting the right post count while rendering the
+wrong number of cards. Stop it, clear the cache, restart:
+
+```bash
+rm -rf .astro
+npm run dev
+```
+
+**4. `npm run preview` shows old content.** It serves `dist/`, which is only as fresh as
+your last `npm run build`. Rebuild first.
+
+**5. A remote image host is unreachable from your machine.** See the next entry.
+
+To settle it definitively, compare a clean build against the live sitemap:
+
+```bash
+rm -rf dist .astro && npm run build
+find dist -name index.html | sed 's#^dist##; s#/index.html#/#' | sort > /tmp/local.txt
+curl -s https://aumniguest.github.io/blog/sitemap-0.xml   | grep -oE '<loc>[^<]*</loc>' | sed -E 's#</?loc>##g; s#https://aumniguest.github.io/blog##'   | sort > /tmp/live.txt
+diff /tmp/local.txt /tmp/live.txt
+```
+
+Only `/admin/` and `/search/` should appear as local-only — both exist live but are
+deliberately kept out of the sitemap.
+
+---
+
+## Build is slow, or warns "Could not fetch … at build time"
+
+```
+[image] Could not fetch https://picsum.photos/id/727/1920/1280.webp at build time —
+embedding it unoptimised, loaded from its original host.
+```
+
+**Cause.** A post uses a remote `featured_image`. Astro has to fetch it at build time to
+read its dimensions, and your network cannot reach that host. Check directly:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}
+' --max-time 20 https://picsum.photos/id/727/1920/1280.webp
+```
+
+A `522` or a timeout confirms it. This is environment-specific — GitHub Actions may
+reach a host your machine cannot, which is exactly why a local build can differ from a
+successful deploy.
+
+**This is a warning, not an error.** `src/lib/remote-image.ts` catches the failure and
+falls back to loading the image from its original host, unoptimised. The build still
+completes and every page is still produced. Failures are cached per URL, so one dead
+host costs one timeout for the whole build rather than one per page.
+
+If a host is permanently unreachable, upload the image through the CMS instead — an
+upload has no build-time network dependency at all.
+
+---
+
 ## A new post does not appear on the site
 
 Two causes, in order of likelihood.
