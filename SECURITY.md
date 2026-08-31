@@ -18,13 +18,22 @@ Token** that you paste at sign-in. There is no OAuth backend, no serverless func
 no client secret anywhere in this repository — deliberately, because a client secret in
 a static site is not a secret.
 
-That token:
+Two token types work, with different blast radius:
 
-- must be scoped to **this repository only**, with **Contents: read and write**;
+- **Fine-grained**, scoped to this repository only, **Contents: read and write**. The
+  tighter option. It can only be issued by the account that *owns* the repository —
+  collaborator access does not qualify.
+- **Classic** with the `public_repo` scope. Works from any account with push access, but
+  grants write to **every public repository that account can push to**, not just this
+  one. Use it only when the fine-grained route is unavailable, and prefer `public_repo`
+  over full `repo`.
+
+Either way the token:
+
 - does **not** need Pull requests access (`publish_mode: simple` commits to `main`);
 - should have an expiry set;
 - **carries write access to the whole repository, not just posts** — including the
-  GitHub Actions workflow file.
+  GitHub Actions workflow file, which runs on every push.
 
 Treat it like a password. Do not commit it, do not paste it into anything other than the
 Sveltia sign-in prompt, and revoke it at

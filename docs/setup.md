@@ -47,23 +47,51 @@ gh api repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io/pages --jq '.
 gh run list --repo CreativeDigitalGrowth/CreativeDigitalGrowth.github.io --limit 3
 ```
 
-## 2. Fine-grained PAT for the CMS
+## 2. Access token for the CMS
 
 The CMS signs in with a GitHub Personal Access Token. There is no OAuth backend, no
 serverless function and no client secret anywhere in this repository.
 
-Create it at <https://github.com/settings/personal-access-tokens/new>:
+Two kinds of token work, and which one you can use depends on **who owns the repo**.
+
+### Fine-grained (tighter — use it if you can)
+
+<https://github.com/settings/personal-access-tokens/new>
 
 | Field | Value |
 | --- | --- |
 | Resource owner | `CreativeDigitalGrowth` |
-| Repository access | **Only select repositories → `blog`** |
+| Repository access | **Only select repositories → `CreativeDigitalGrowth.github.io`** |
 | Repository permissions → **Contents** | **Read and write** |
 | Repository permissions → Metadata | Read-only (added automatically) |
 | Expiration | Set one. 90 days is a reasonable default |
 
-**Pull requests access is not needed** — `publish_mode: simple` in
+Two defaults catch people out: *Repository access* starts on **Public repositories**,
+which is read-only, and *Contents* starts on **No access** — read-only there passes the
+login check but makes every save fail.
+
+> **The catch.** A fine-grained token can only be scoped to repositories owned by its
+> **resource owner**. Collaborator access does not count: if you are signed in as an
+> account that merely *collaborates* on this repo, it will not appear in the list and no
+> permission setting will help. Sign in as the owner, or use a classic token below.
+
+### Classic (the fallback that always works)
+
+<https://github.com/settings/tokens> → **Generate new token (classic)** → tick
+**`public_repo`** only.
+
+Because this repository is public, `public_repo` is enough — do not grant full `repo`.
+This works from any account with push access, regardless of who owns the repo, which is
+why it is the reliable option when the fine-grained route refuses.
+
+The trade-off is real: `public_repo` grants write access to **every public repository
+you can push to**, not just this one. A fine-grained token scoped to a single repo is
+strictly tighter. Prefer fine-grained when the owner account is available to you.
+
+**Pull requests access is not needed either way** — `publish_mode: simple` in
 `public/admin/config.yml` commits straight to `main`.
+
+Whichever you use, commits are authored by the account that issued the token.
 
 Then open <https://creativedigitalgrowth.github.io/admin/>, choose **"Sign In Using Access
 Token"** and paste it.

@@ -188,7 +188,7 @@ case after a Sveltia update is the button reappearing, never the wrong one vanis
 Delete that script if an OAuth backend is ever configured.
 
 **Fix.** Click **"Sign In Using Access Token"** and paste a fine-grained PAT — see
-[setup.md](setup.md#2-fine-grained-pat-for-the-cms). This is the intended route and the
+[setup.md](setup.md#2-access-token-for-the-cms). This is the intended route and the
 one that produced every CMS commit in this repository so far.
 
 **If you would rather have the GitHub button work**, it needs an OAuth backend:
@@ -313,6 +313,49 @@ host costs one timeout for the whole build rather than one per page.
 
 If a host is permanently unreachable, upload the image through the CMS instead — an
 upload has no build-time network dependency at all.
+
+---
+
+## CMS: "You don't have access to the … repository"
+
+Shown after pasting a token on the login screen, even though the repository exists and
+the config names it correctly.
+
+**Cause.** Sveltia verifies access with a single call:
+
+```js
+const { permissions } = await GET(`/repos/${owner}/${repo}`);
+if (!permissions?.pull) throw repository_no_access;
+```
+
+For a **public** repo GitHub returns the repository either way, but it only includes a
+`permissions` object when the request is authenticated *and the token actually covers
+that repo*. Without it there is no `.pull`, and you get this message. So the error means
+"this token cannot reach this repo", not "this repo does not exist".
+
+**The usual reason: a fine-grained token issued by the wrong account.** Fine-grained
+tokens can only be scoped to repositories owned by their **resource owner** —
+collaborator access does not count. A token issued by an account that merely
+collaborates here can never reach this repo, whatever permissions it is given.
+
+**Fix.** Either issue the fine-grained token as the repository *owner*, or use a classic
+token with the `public_repo` scope, which works from any account with push access. See
+[setup.md](setup.md#2-access-token-for-the-cms) for both, and the trade-off between them.
+
+**Check a token without guessing** (`-rsp` keeps it out of shell history):
+
+```bash
+read -rsp "Paste token (hidden): " T; echo
+curl -s -H "Authorization: Bearer $T"   https://api.github.com/repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io   | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);console.log(j.message?'FAIL: '+j.message:'permissions: '+JSON.stringify(j.permissions))})"
+unset T
+```
+
+`permissions: {"pull":true,"push":true,…}` means the token is good. `null` or
+`FAIL: Not Found` means it cannot see the repo.
+
+Other things to check if the token *is* correctly scoped: **Contents** must be **Read
+and write** (read-only passes login but fails every save), and *Repository access*
+must not be left on its **Public repositories** default, which is read-only.
 
 ---
 
