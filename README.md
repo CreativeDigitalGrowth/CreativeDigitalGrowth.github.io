@@ -4,7 +4,7 @@ A static blog for a single author. Astro + TypeScript, Markdown content collecti
 Sveltia CMS at `/admin`, Pagefind search, Giscus comments, deployed to GitHub Pages by
 GitHub Actions.
 
-**Live:** <https://aumniguest.github.io/blog/>
+**Live:** <https://creativedigitalgrowth.github.io/>
 
 No server, no database, no tracking scripts, no cookie banner, no CSS framework. Three
 runtime dependencies. The only client-side JavaScript is a theme toggle, a copy-link
@@ -48,7 +48,7 @@ Re-run it after every `npm install` or `npm ci`. CI on Linux is unaffected. Deta
 
 ## Writing a post
 
-Open [`/admin/`](https://aumniguest.github.io/blog/admin/) → **New Post** → uncheck
+Open [`/admin/`](https://creativedigitalgrowth.github.io/admin/) → **New Post** → uncheck
 **Draft** → **Save**. That commits to `main`, which builds and deploys.
 
 Or write the file directly — posts are Markdown in `src/content/blog/`, and the filename
@@ -76,15 +76,20 @@ no page, no feed entry, no archive listing, no search hit. Full reference in
 
 ## Base-path safety
 
-The site is served from `/blog/`, not the domain root, so no internal link may be
-written as a root-absolute `/foo/` string. Everything goes through
+This is a **user site**, served from the domain root, so `base` is `/` and a
+root-absolute `/foo/` link happens to work. That is a coincidence of the current
+hosting, not a licence to hardcode paths: every internal link still goes through
 [`src/lib/url.ts`](src/lib/url.ts) — `withBase()` for paths you author,
 `absFromBuiltPath()` for paths Astro produced, `absUrl()` for absolute URLs.
 
-To verify after any change, build and confirm this prints nothing:
+Keeping that discipline is what made moving from a project site (`/blog/` base) to
+this one a config change rather than a rewrite. Break it and the site can no longer
+move without hunting down hardcoded paths.
+
+To verify after any change, build and confirm every absolute URL points at this site:
 
 ```bash
-grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE '="/blog/'
+grep -rhoE 'https?://[^"< ]+' dist --include=*.html --include=*.xml   | grep -v 'creativedigitalgrowth.github.io' | sort -u
 ```
 
 ## Status

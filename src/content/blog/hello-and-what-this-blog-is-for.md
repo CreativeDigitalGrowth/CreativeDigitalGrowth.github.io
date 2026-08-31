@@ -16,7 +16,7 @@ Every placeholder sentence on this page is meant to be replaced. It exists so th
 the archives and the feed have something real to render before you write your first post.
 
 This is the short-post shape: one idea, three or four paragraphs, no headings. Because there
-are no headings, the table of [contents ](https://aumniguest.github.io/blog/blog/hello-and-what-this-blog-is-for/)does not appear — that only shows up once a post has
+are no headings, the table of [contents ](/blog/hello-and-what-this-blog-is-for/)does not appear — that only shows up once a post has
 enough structure to be worth navigating.
 
 Write these when you have a single thing to say and no need to say it at length. A release

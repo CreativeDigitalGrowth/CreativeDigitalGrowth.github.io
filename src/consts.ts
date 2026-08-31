@@ -27,7 +27,7 @@ export const TOC_MIN_HEADINGS = 3;
  * section renders a short notice instead of the widget.
  */
 export const GISCUS = {
-  repo: 'aumniguest/blog',
+  repo: 'CreativeDigitalGrowth/CreativeDigitalGrowth.github.io',
   repoId: '',
   category: 'Announcements',
   categoryId: '',
@@ -45,5 +45,5 @@ export const CONTACT_FORM_ENDPOINT = '';
 
 /** Optional social links shown in the footer. Remove any you do not use. */
 export const SOCIAL_LINKS = [
-  { label: 'GitHub', href: 'https://github.com/aumniguest' },
+  { label: 'GitHub', href: 'https://github.com/CreativeDigitalGrowth' },
 ] as const;

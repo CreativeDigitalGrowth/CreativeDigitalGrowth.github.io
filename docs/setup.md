@@ -43,8 +43,8 @@ and pagination need a real build step, not a plugin whitelist.
 To confirm at any time:
 
 ```bash
-gh api repos/aumniguest/blog/pages --jq '.build_type'   # expect: workflow
-gh run list --repo aumniguest/blog --limit 3
+gh api repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io/pages --jq '.build_type'   # expect: workflow
+gh run list --repo CreativeDigitalGrowth/CreativeDigitalGrowth.github.io --limit 3
 ```
 
 ## 2. Fine-grained PAT for the CMS
@@ -56,7 +56,7 @@ Create it at <https://github.com/settings/personal-access-tokens/new>:
 
 | Field | Value |
 | --- | --- |
-| Resource owner | `aumniguest` |
+| Resource owner | `CreativeDigitalGrowth` |
 | Repository access | **Only select repositories → `blog`** |
 | Repository permissions → **Contents** | **Read and write** |
 | Repository permissions → Metadata | Read-only (added automatically) |
@@ -65,7 +65,7 @@ Create it at <https://github.com/settings/personal-access-tokens/new>:
 **Pull requests access is not needed** — `publish_mode: simple` in
 `public/admin/config.yml` commits straight to `main`.
 
-Then open <https://aumniguest.github.io/blog/admin/>, choose **"Sign In Using Access
+Then open <https://creativedigitalgrowth.github.io/admin/>, choose **"Sign In Using Access
 Token"** and paste it.
 
 > There is no "Sign In with GitHub" button on the login screen. It starts an OAuth flow
@@ -87,14 +87,14 @@ configured, post pages show a one-line notice instead of the widget — nothing 
 2. Open the **Discussions** tab and make sure a category exists. The default expected by
    `src/consts.ts` is **Announcements**; any category works as long as the names match.
 3. Install the app at <https://github.com/apps/giscus> and grant it access to
-   `aumniguest/blog` **only**.
-4. Go to <https://giscus.app>, enter `aumniguest/blog`, pick the category, and choose
+   `CreativeDigitalGrowth/CreativeDigitalGrowth.github.io` **only**.
+4. Go to <https://giscus.app>, enter `CreativeDigitalGrowth/CreativeDigitalGrowth.github.io`, pick the category, and choose
    *Discussion title contains page pathname* for the mapping.
 5. Copy the generated `data-repo-id` and `data-category-id` into `src/consts.ts`:
 
 ```ts
 export const GISCUS = {
-  repo: 'aumniguest/blog',
+  repo: 'CreativeDigitalGrowth/CreativeDigitalGrowth.github.io',
   repoId: 'R_kg...',        // ← paste
   category: 'Announcements',
   categoryId: 'DIC_kw...',  // ← paste
@@ -148,8 +148,8 @@ Blogs commonly split the two: a permissive code licence (MIT) plus a content lic
 
 ## 7. Optional: custom domain
 
-A custom domain removes the `/blog/` base path entirely, which simplifies several things
-(`robots.txt` becomes authoritative, URLs stop reading `/blog/blog/…`). It requires
-changing `site` and `base` in `astro.config.mjs`, `site_url`/`display_url` in
-`public/admin/config.yml`, and the `Sitemap:` line in `public/robots.txt`. See
+A custom domain needs `site` in `astro.config.mjs`, `site_url`/`display_url` in
+`public/admin/config.yml`, the `Sitemap:` line in `public/robots.txt`, and a `CNAME`
+file in `public/` containing the bare domain. Because this is already a root-served
+user site, no base path has to change. See
 [architecture.md](architecture.md#base-paths).

@@ -108,22 +108,25 @@ search UI, you must reimplement the prefix.
 ## Links or images 404 on the live site but work locally
 
 **Cause.** A root-absolute path (`/about/`, `/images/x.png`) was written somewhere
-instead of going through the base-path helpers. It resolves at the domain root, which
-this site is not served from.
+instead of going through the base-path helpers.
+
+This site is currently served from the domain root, so such a path happens to work —
+which hides the mistake until the site moves under a base path again, at which point
+every one of them breaks at once.
 
 **Fix.** Use `withBase()` — see [architecture.md](architecture.md#base-paths). To find
 every offender:
 
 ```bash
 npm run build
-grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE '="/blog/'
+grep -rnE '(href|src)="/[a-z]' src/ --include=*.astro
 ```
 
-Empty output means clean.
+Every hit should be inside `src/lib/url.ts` or a deliberate in-page anchor.
 
 ---
 
-## Pagination links contain the base path twice (`/blog/blog/blog/2/`)
+## Pagination links contain the base path twice (e.g. `/blog/blog/2/`)
 
 **Cause.** `paginate()` returns URLs that **already include the base**. Wrapping them in
 `withBase()` doubles it.
@@ -148,7 +151,7 @@ runs alongside the Astro workflow. Jekyll cannot parse `.astro` files.
 **Fix.** **Settings → Pages → Source: `GitHub Actions`** (needs admin). Confirm with:
 
 ```bash
-gh api repos/aumniguest/blog/pages --jq '.build_type'   # expect: workflow
+gh api repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io/pages --jq '.build_type'   # expect: workflow
 ```
 
 A correctly configured repository produces exactly **one** run per push. If you see a
@@ -204,8 +207,8 @@ neither.
 
 ## CMS "View on Live Site" link 404s
 
-The link points at `https://aumniguest.github.io/blog/<slug>/` — one `blog/` short of
-the real URL, `https://aumniguest.github.io/blog/blog/<slug>/`.
+The link points at `https://creativedigitalgrowth.github.io/<slug>/` — one `blog/` short of
+the real URL, `https://creativedigitalgrowth.github.io/blog/<slug>/`.
 
 **Cause.** Sveltia keeps only the **origin** of `site_url` when building preview links.
 From the bundle:
@@ -220,20 +223,21 @@ So the link is `origin + "/" + preview_path`. The base path in `site_url` never 
 it, and adding a trailing slash to `site_url` changes nothing — `.origin` drops the path
 either way.
 
-**Fix.** `preview_path` must spell out the whole path **from the origin**, which on a
-project site means repeating the base:
+**Fix.** `preview_path` must spell out the whole path **from the origin**:
 
 ```yaml
-preview_path: blog/blog/{{slug}}/
-#             ^^^^ GitHub Pages project-site base
-#                  ^^^^ this collection's route
+preview_path: blog/{{slug}}/
 ```
+
+On a *project* site the base has to be repeated — `blog/blog/{{slug}}/` — because the
+origin excludes it. On this user site the origin is the site root, so the route alone is
+correct.
 
 `site_url` and `display_url` still carry the full URL: only `site_url`'s origin is used
 for preview links, but `display_url` is used verbatim for the "visit site" link.
 
-If the base path ever changes — a custom domain, a renamed repo — the first segment of
-`preview_path` has to change with it.
+If the site ever moves under a base path again, that base must be prepended here —
+`preview_path` is origin-relative and Astro's `base` does not reach it.
 
 ---
 
@@ -274,7 +278,7 @@ To settle it definitively, compare a clean build against the live sitemap:
 ```bash
 rm -rf dist .astro && npm run build
 find dist -name index.html | sed 's#^dist##; s#/index.html#/#' | sort > /tmp/local.txt
-curl -s https://aumniguest.github.io/blog/sitemap-0.xml   | grep -oE '<loc>[^<]*</loc>' | sed -E 's#</?loc>##g; s#https://aumniguest.github.io/blog##'   | sort > /tmp/live.txt
+curl -s https://creativedigitalgrowth.github.io/sitemap-0.xml   | grep -oE '<loc>[^<]*</loc>' | sed -E 's#</?loc>##g; s#https://creativedigitalgrowth.github.io##'   | sort > /tmp/live.txt
 diff /tmp/local.txt /tmp/live.txt
 ```
 
@@ -324,7 +328,7 @@ appear, which is the confusing part.
 Check the committed file:
 
 ```bash
-gh api repos/aumniguest/blog/contents/src/content/blog/<slug>.md --jq '.content' | base64 -d | head
+gh api repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io/contents/src/content/blog/<slug>.md --jq '.content' | base64 -d | head
 ```
 
 If it says `draft: true`, untick **Draft** in the CMS and save again.
@@ -333,7 +337,7 @@ If it says `draft: true`, untick **Draft** in the CMS and save again.
 version live — which looks identical to "my post did not appear".
 
 ```bash
-gh run list --repo aumniguest/blog --limit 5
+gh run list --repo CreativeDigitalGrowth/CreativeDigitalGrowth.github.io --limit 5
 ```
 
 A `failure` row is the answer. See the next entry for the most common cause.
@@ -368,18 +372,18 @@ component rather than adding `inferSize` at the call site.
 Check what you actually have:
 
 ```bash
-gh api repos/aumniguest/blog --jq '.permissions'
+gh api repos/CreativeDigitalGrowth/CreativeDigitalGrowth.github.io --jq '.permissions'
 git status -sb
 git log --oneline origin/main..HEAD
 ```
 
 `"push": false` means read-only access — the local git credentials are `mohiseen-aumni`
-while the repository is owned by `aumniguest`. Either be granted Write, or authenticate
+while the repository is owned by `CreativeDigitalGrowth`. Either be granted Write, or authenticate
 as the owner:
 
 ```bash
 gh auth login
-gh auth switch --user aumniguest
+gh auth switch --user CreativeDigitalGrowth
 ```
 
 Before any push into a repository that already has commits, confirm it is a

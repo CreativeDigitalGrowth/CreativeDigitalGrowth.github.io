@@ -1,7 +1,7 @@
 # Working in this repository
 
 A solo-author static blog: Astro 7 + TypeScript, deployed to GitHub Pages under the
-base path `/blog/`. Full detail in [`docs/architecture.md`](docs/architecture.md).
+served from the domain root. Full detail in [`docs/architecture.md`](docs/architecture.md).
 
 ## Development
 
@@ -29,12 +29,13 @@ npm install --no-save --force @astrojs/compiler-binding-wasm32-wasi
 
 ## Rules that are easy to get wrong
 
-**Never write a root-absolute internal path.** The site is served from `/blog/`, so
-`href="/about/"` breaks. Use the helpers in `src/lib/url.ts`:
+**Never write a root-absolute internal path.** It happens to work today — this is a
+user site with `base: '/'` — but that is hosting, not design. Use the helpers in
+`src/lib/url.ts` so the site can move again without a rewrite:
 
 | Helper | For |
 | --- | --- |
-| `withBase(p)` | paths you author — `/about/` → `/blog/about/` |
+| `withBase(p)` | paths you author — `/about/` → `/about/` here, `/blog/about/` under a base |
 | `absFromBuiltPath(p, site)` | paths Astro produced (`Astro.url.pathname`, `ImageMetadata.src`, `paginate()` URLs) — **already based** |
 | `absUrl(p, site)` | absolute URL from a path you author |
 
@@ -43,7 +44,7 @@ the base". That was tried and shipped two bugs: `/blog/my-post/` is genuinely am
 because a `/blog/` route sits under a `/blog/` base.
 
 **`paginate()` URLs already include the base.** Passing them through `withBase()`
-produces `/blog/blog/blog/2/`. `Pagination.astro` takes them raw.
+doubles it the moment a base is configured. `Pagination.astro` takes them raw.
 
 **Query posts through `getPosts()`** in `src/lib/posts.ts`, never `getCollection`
 directly. That single call is where drafts are filtered out of production builds and
@@ -69,10 +70,10 @@ colon-space silently breaks the whole CMS.
 ```bash
 npm run check    # expect 0 errors
 npm run build
-grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE '="/blog/'
+grep -rhoE 'https?://[^"< ]+' dist --include=*.html | grep -v 'creativedigitalgrowth.github.io' | sort -u
 ```
 
-The grep must print nothing. If the change is visible in a browser, verify with
+The grep must print only genuinely external URLs (giscus, google maps, unpkg). If the change is visible in a browser, verify with
 `npm run preview` rather than `npm run dev` — search, `/admin/` and draft exclusion all
 behave differently between the two.
 
@@ -87,7 +88,7 @@ every push because Jekyll cannot parse `.astro` files. And never "fix" that with
 `.nojekyll` file: under branch mode it publishes the raw repository root instead of the
 built site.
 
-Local git authenticates as `mohiseen-aumni`; the repository is owned by `aumniguest`.
+Local git authenticates as `mohiseen-aumni`; the repository is owned by `CreativeDigitalGrowth`.
 Write access yes, admin no — repository settings cannot be changed from here.
 
 ## Documentation

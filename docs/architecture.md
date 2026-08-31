@@ -63,31 +63,37 @@ IDs, the contact endpoint and social links.
 dynamic routes ahead of rest parameters, and in a static build every path is enumerated
 up front, so the two cannot silently collide.
 
-Because the site lives under the `/blog/` base **and** has a `/blog/` route, post URLs
-read `https://aumniguest.github.io/blog/blog/<slug>/`. Correct, just doubled. Renaming
-the repository or moving the listing route removes the repetition.
+Post URLs read `https://creativedigitalgrowth.github.io/blog/<slug>/` — the site root
+plus the collection's route. Under the previous project site this doubled to
+`/blog/blog/<slug>/`, because the repo name and the route were both `blog`; moving to a
+user site removed the repetition.
 
 ## Base paths
 
 This is the part that breaks sites, so it gets an explicit design rather than a
 convention.
 
-The site is served from `/blog/`, not the domain root. **No internal link, asset
-reference or absolute URL may be written as a root-absolute `/foo/` string.** Everything
-goes through [`src/lib/url.ts`](../src/lib/url.ts), which exposes three functions:
+This is a **user site**, served from the domain root, so `base` is `/`. A root-absolute
+`/foo/` link therefore happens to work — but that is a property of the current hosting,
+not of the code. **Every internal link, asset reference and absolute URL still goes
+through [`src/lib/url.ts`](../src/lib/url.ts)**, which exposes three functions:
 
 | Function | Use for | Example |
 | --- | --- | --- |
-| `withBase(p)` | Paths *you* author | `withBase('/about/')` → `/blog/about/` |
+| `withBase(p)` | Paths *you* author | `/about/` → `/about/` here; `/blog/about/` under a base |
 | `absFromBuiltPath(p, site)` | Paths *Astro* produced — they already carry the base | `Astro.url.pathname`, `ImageMetadata.src`, `paginate()` URLs |
 | `absUrl(p, site)` | Full absolute URL from a path you author | canonical, Open Graph, RSS, JSON-LD |
 
+That discipline is why moving this site from a project site (`aumniguest.github.io/blog/`,
+`base: '/blog/'`) to this user site was a config change and nothing else. Had paths been
+hardcoded, the move would have been a hunt through every template.
+
 There are deliberately two absolute-URL functions instead of one clever one. An earlier
 version tried to detect "does this path already start with the base?" and got it wrong
-precisely because a `/blog/` route sits under a `/blog/` base: `/blog/my-post/` is
+precisely because, under the old `/blog/` base, a `/blog/` route made `/blog/my-post/`
 ambiguous. Two shipped bugs came from that guess — pagination emitting
 `/blog/blog/blog/2/`, and post canonicals dropping a segment. Naming the two cases
-removes the ambiguity.
+removes the ambiguity, and keeps working at any base.
 
 **`paginate()` URLs already include the base.** Passing them through `withBase()` doubles
 it. `Pagination.astro` takes them raw.
@@ -96,7 +102,7 @@ To re-check after any change, build and confirm this prints nothing:
 
 ```bash
 npm run build
-grep -rhoE '(href|src|srcset|content)="/[^"]*"' dist --include=*.html | grep -vE '="/blog/'
+grep -rhoE 'https?://[^"< ]+' dist --include=*.html | grep -v 'creativedigitalgrowth.github.io' | sort -u
 ```
 
 The full audit — every internal link, `srcset` entry and in-page anchor resolved against
@@ -181,7 +187,7 @@ About page — so navigation chrome does not pollute results.
 One base-path wrinkle: Pagefind indexes `dist/`, which *is* the deploy root, so its
 result URLs start at `/`. `src/pages/search.astro` passes `bundlePath` and a
 `processResult` hook that puts the base back on the front. Verified live: searching
-returns `/blog/blog/…` links.
+returns `/blog/…` links.
 
 Search cannot work under `npm run dev` — there is no index. The page detects the missing
 bundle and shows an explanatory note instead of failing silently.
@@ -222,9 +228,9 @@ No framework runtime, no analytics, no web fonts, no cookie banner.
 Graph and Twitter card tags, and — on post pages only — JSON-LD `BlogPosting`. Paginated
 pages past the first are `noindex, follow`.
 
-`robots.txt` is included but is **advisory on a project site**: crawlers only read
-robots.txt from a domain root, which here belongs to `aumniguest.github.io`, not this
-repository. It becomes authoritative on a custom domain or a user site.
+`robots.txt` sits at the domain root and is therefore **authoritative** — this is a
+user site, so crawlers read it. (On a project site it would live under the repo
+sub-path, where crawlers ignore it.)
 
 ## Accessibility
 

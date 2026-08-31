@@ -5,7 +5,7 @@ identical results — the CMS is just an editor for the same files.
 
 ## The CMS
 
-Open <https://aumniguest.github.io/blog/admin/> and choose **"Sign In Using Access
+Open <https://creativedigitalgrowth.github.io/admin/> and choose **"Sign In Using Access
 Token"** (see [setup.md](setup.md#2-fine-grained-pat-for-the-cms)).
 
 **New Post → fill the fields → uncheck Draft → Save.**

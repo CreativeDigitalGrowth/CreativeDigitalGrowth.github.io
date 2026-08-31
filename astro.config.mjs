@@ -2,12 +2,12 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// GitHub Pages PROJECT site: the repo is served from https://<user>.github.io/<repo>/
-// `site` is the bare origin and `base` is the repo sub-path. Astro joins the two for
-// sitemap/canonical URLs; everything else must go through src/lib/url.ts.
+// GitHub Pages USER site: the repo is named <user>.github.io and is served from the
+// domain root, so there is no base path. `base` is left at its default of '/'.
+// src/lib/url.ts still mediates every internal link, so the site can move back under
+// a sub-path (or onto a custom domain) by changing `site`/`base` here and nothing else.
 export default defineConfig({
-  site: 'https://aumniguest.github.io',
-  base: '/blog/',
+  site: 'https://creativedigitalgrowth.github.io',
   trailingSlash: 'always',
   integrations: [
     sitemap({
