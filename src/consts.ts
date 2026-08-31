@@ -22,6 +22,8 @@ export const DEFAULT_OG_IMAGE = '/social-card.png';
  * Nothing is deleted — flipping a flag back to `true` restores the page as it was.
  */
 export const FEATURES = {
+  /** About page at /about/. Edit its prose in src/pages/about/[...slug].astro. */
+  about: false,
   /** Full-text search at /search/. Needs no configuration; works as soon as it is on. */
   search: false,
   /** Contact page at /contact/. Set CONTACT_FORM_ENDPOINT below for a working form. */

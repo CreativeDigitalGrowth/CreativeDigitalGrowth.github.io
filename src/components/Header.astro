@@ -7,7 +7,7 @@ import ThemeToggle from './ThemeToggle.astro';
 // generated, so linking to them would 404.
 const nav = [
   { label: 'Blog', href: '/blog/', enabled: true },
-  { label: 'About', href: '/about/', enabled: true },
+  { label: 'About', href: '/about/', enabled: FEATURES.about },
   { label: 'Search', href: '/search/', enabled: FEATURES.search },
   { label: 'Contact', href: '/contact/', enabled: FEATURES.contact },
 ].filter((item) => item.enabled);

@@ -54,7 +54,7 @@ IDs, the contact endpoint and social links.
 | `/blog/<slug>/` | `pages/blog/[slug].astro` | `slug` is the collection entry `id` |
 | `/category/<slug>/`, `…/2/` | `pages/category/[category]/[...page].astro` | |
 | `/tag/<slug>/`, `…/2/` | `pages/tag/[tag]/[...page].astro` | |
-| `/about/`, `/contact/`, `/search/` | one file each | |
+| `/about/`, `/contact/`, `/search/` | `pages/<name>/[...slug].astro` | **Flag-gated** — see below |
 | `/404` | `pages/404.astro` | |
 | `/rss.xml` | `pages/rss.xml.ts` | |
 | `/sitemap-index.xml` | `@astrojs/sitemap` | `/search/` filtered out — it is `noindex` |
@@ -67,6 +67,27 @@ Post URLs read `https://creativedigitalgrowth.github.io/blog/<slug>/` — the si
 plus the collection's route. Under the previous project site this doubled to
 `/blog/blog/<slug>/`, because the repo name and the route were both `blog`; moving to a
 user site removed the repetition.
+
+## Optional pages
+
+`/about/`, `/contact/` and `/search/` are gated by `FEATURES` in `src/consts.ts`:
+
+```ts
+export const FEATURES = { about: false, search: false, contact: false };
+```
+
+Each lives at `pages/<name>/[...slug].astro` with a `getStaticPaths` that returns `[]`
+when its flag is off, so the page is **not generated at all** and the URL 404s. Merely
+dropping the nav link would leave the page live, shareable and indexable — this does
+not.
+
+Every link to them is conditional too: header nav, footer, the home page's hero button
+and author-section link, the 404 page's search button, and the About page's contact
+sentence. Turning a flag back on restores the page and all of its links with no other
+change.
+
+Note the About page carries `data-pagefind-body`, so with it hidden the search index
+covers posts only.
 
 ## Base paths
 

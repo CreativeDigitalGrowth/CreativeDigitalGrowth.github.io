@@ -1,8 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPosts, getCategories } from '../lib/posts';
-import { withBase } from '../lib/url';
-import { AUTHOR_NAME, AUTHOR_BIO, SITE_TITLE, FEATURES } from '../consts';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts, getCategories } from '../../lib/posts';
+import { withBase } from '../../lib/url';
+import { AUTHOR_NAME, AUTHOR_BIO, SITE_TITLE, FEATURES } from '../../consts';
+
+/**
+ * Gated route. When FEATURES.about is false this returns no paths, so the page is
+ * never generated and /about/ 404s. Flip the flag in src/consts.ts to bring it back —
+ * nothing here changes.
+ */
+export const getStaticPaths = (() =>
+  FEATURES.about ? [{ params: { slug: undefined } }] : []) satisfies GetStaticPaths;
 
 const posts = await getPosts();
 const categories = getCategories(posts);
