@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE, SOCIAL_LINKS } from '../consts';
+import { SITE_TITLE, SOCIAL_LINKS, FEATURES } from '../consts';
 import { withBase } from '../lib/url';
 
 const year = new Date().getFullYear();
@@ -12,7 +12,11 @@ const year = new Date().getFullYear();
     <ul class="footer-links">
       <li><a href={withBase('/blog/')}>Blog</a></li>
       <li><a href={withBase('/about/')}>About</a></li>
-      <li><a href={withBase('/contact/')}>Contact</a></li>
+      {FEATURES.contact && (
+        <li>
+          <a href={withBase('/contact/')}>Contact</a>
+        </li>
+      )}
       <li><a href={withBase('/rss.xml')}>RSS</a></li>
       {
         SOCIAL_LINKS.map((link) => (

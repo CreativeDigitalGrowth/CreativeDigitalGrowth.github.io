@@ -1,6 +1,16 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { withBase } from '../lib/url';
+import type { GetStaticPaths } from 'astro';
+import { FEATURES } from '../../consts';
+
+/**
+ * Gated route. When FEATURES.search is false this returns no paths, so the page is
+ * never generated and /search/ 404s. Flip the flag in src/consts.ts to bring it back —
+ * nothing here changes.
+ */
+export const getStaticPaths = (() =>
+  FEATURES.search ? [{ params: { slug: undefined } }] : []) satisfies GetStaticPaths;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/url';
 
 // Pagefind indexes the built output, so its bundle only exists after
 // `npm run build` (see the postbuild step in package.json). During `astro dev`

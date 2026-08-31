@@ -1,7 +1,7 @@
 /**
  * Single place to edit the blog's identity. Nothing else hardcodes these values.
  */
-export const SITE_TITLE = 'Field Notes';
+export const SITE_TITLE = 'Creative Digital Growth';
 export const SITE_DESCRIPTION =
   'A small, fast, hand-built blog about the things worth writing down.';
 
@@ -13,6 +13,20 @@ export const AUTHOR_EMAIL = 'you@example.com';
 
 /** Default social image, relative to /public. Used when a page has no image of its own. */
 export const DEFAULT_OG_IMAGE = '/social-card.png';
+
+/**
+ * Optional pages. Set a flag to `true` and the page is built and its links appear in
+ * the header, footer and elsewhere; leave it `false` and the route is not generated at
+ * all, so the URL 404s rather than sitting unlinked but reachable.
+ *
+ * Nothing is deleted — flipping a flag back to `true` restores the page as it was.
+ */
+export const FEATURES = {
+  /** Full-text search at /search/. Needs no configuration; works as soon as it is on. */
+  search: false,
+  /** Contact page at /contact/. Set CONTACT_FORM_ENDPOINT below for a working form. */
+  contact: false,
+} as const;
 
 /** Posts per page for /blog/ and the category / tag archives. */
 export const POSTS_PER_PAGE = 6;

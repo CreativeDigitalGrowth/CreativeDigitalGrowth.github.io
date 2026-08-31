@@ -1,6 +1,16 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { AUTHOR_EMAIL, CONTACT_FORM_ENDPOINT } from '../consts';
+import type { GetStaticPaths } from 'astro';
+import { FEATURES } from '../../consts';
+
+/**
+ * Gated route. When FEATURES.contact is false this returns no paths, so the page is
+ * never generated and /contact/ 404s. Flip the flag in src/consts.ts to bring it back —
+ * nothing here changes.
+ */
+export const getStaticPaths = (() =>
+  FEATURES.contact ? [{ params: { slug: undefined } }] : []) satisfies GetStaticPaths;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AUTHOR_EMAIL, CONTACT_FORM_ENDPOINT } from '../../consts';
 
 // GitHub Pages serves static files only, so a working form needs a third-party
 // endpoint. CONTACT_FORM_ENDPOINT is deliberately empty: paste your own Formspree
